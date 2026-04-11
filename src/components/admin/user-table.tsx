@@ -1,9 +1,12 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import type { Profile } from '@/lib/supabase/types';
 
 export default function UserTable() {
+  const t = useTranslations('admin');
+  const tc = useTranslations('common');
   const [users, setUsers] = useState<Profile[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -17,16 +20,16 @@ export default function UserTable() {
       setError(null);
       const res = await fetch('/api/admin/users');
       if (!res.ok) {
-        throw new Error('Failed to fetch users');
+        throw new Error(t('failedFetchUsers'));
       }
       const data = await res.json();
       setUsers(data);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to fetch users');
+      setError(err instanceof Error ? err.message : t('failedFetchUsers'));
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [t]);
 
   useEffect(() => {
     fetchUsers();
@@ -40,10 +43,10 @@ export default function UserTable() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ has_paid: !user.has_paid }),
       });
-      if (!res.ok) throw new Error('Failed to update');
+      if (!res.ok) throw new Error(t('failedUpdatePaid'));
       await fetchUsers();
     } catch {
-      setError('Failed to update paid status');
+      setError(t('failedUpdatePaid'));
     } finally {
       setActionLoading((prev) => ({ ...prev, [`paid-${user.id}`]: false }));
     }
@@ -57,12 +60,12 @@ export default function UserTable() {
       });
       if (!res.ok) {
         const data = await res.json();
-        throw new Error(data.error || 'Failed to delete');
+        throw new Error(data.error || t('failedDeleteUser'));
       }
       setDeleteConfirm(null);
       await fetchUsers();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to delete user');
+      setError(err instanceof Error ? err.message : t('failedDeleteUser'));
     } finally {
       setActionLoading((prev) => ({ ...prev, [`delete-${userId}`]: false }));
     }
@@ -71,7 +74,7 @@ export default function UserTable() {
   if (loading) {
     return (
       <div className="bg-surface border border-border rounded-lg p-8 text-center">
-        <p className="text-text-muted">Loading users...</p>
+        <p className="text-text-muted">{tc('loadingUsers')}</p>
       </div>
     );
   }
@@ -87,7 +90,7 @@ export default function UserTable() {
           }}
           className="mt-4 mx-auto block px-4 py-2 bg-primary text-white rounded-lg hover:opacity-90 transition-opacity"
         >
-          Retry
+          {tc('retry')}
         </button>
       </div>
     );
@@ -96,7 +99,7 @@ export default function UserTable() {
   if (users.length === 0) {
     return (
       <div className="bg-surface border border-border rounded-lg p-8 text-center">
-        <p className="text-text-muted">No users found.</p>
+        <p className="text-text-muted">{tc('noUsersFound')}</p>
       </div>
     );
   }
@@ -108,19 +111,19 @@ export default function UserTable() {
           <thead>
             <tr className="border-b border-border bg-surface">
               <th className="px-4 py-3 text-xs font-semibold text-text-muted uppercase tracking-wider">
-                Email
+                {tc('email')}
               </th>
               <th className="px-4 py-3 text-xs font-semibold text-text-muted uppercase tracking-wider">
-                Role
+                {t('role')}
               </th>
               <th className="px-4 py-3 text-xs font-semibold text-text-muted uppercase tracking-wider">
-                Paid Status
+                {t('paidStatus')}
               </th>
               <th className="px-4 py-3 text-xs font-semibold text-text-muted uppercase tracking-wider">
-                Created At
+                {t('createdAt')}
               </th>
               <th className="px-4 py-3 text-xs font-semibold text-text-muted uppercase tracking-wider">
-                Actions
+                {t('actions')}
               </th>
             </tr>
           </thead>
@@ -152,7 +155,7 @@ export default function UserTable() {
                         user.has_paid ? 'bg-success' : 'bg-error'
                       }`}
                     />
-                    {user.has_paid ? 'Paid' : 'Free'}
+                    {user.has_paid ? t('paidUsers') : t('freeUsers')}
                   </span>
                 </td>
                 <td className="px-4 py-3 text-sm text-text-muted whitespace-nowrap">
@@ -172,8 +175,8 @@ export default function UserTable() {
                       {actionLoading[`paid-${user.id}`]
                         ? '...'
                         : user.has_paid
-                          ? 'Revoke'
-                          : 'Grant'}
+                          ? t('revoke')
+                          : t('grant')}
                     </button>
 
                     {deleteConfirm === user.id ? (
@@ -185,13 +188,13 @@ export default function UserTable() {
                         >
                           {actionLoading[`delete-${user.id}`]
                             ? '...'
-                            : 'Confirm'}
+                            : tc('confirm')}
                         </button>
                         <button
                           onClick={() => setDeleteConfirm(null)}
                           className="px-3 py-1 text-xs font-medium rounded-md bg-border/50 text-text-muted hover:bg-border transition-colors"
                         >
-                          Cancel
+                          {tc('cancel')}
                         </button>
                       </div>
                     ) : (
@@ -199,7 +202,7 @@ export default function UserTable() {
                         onClick={() => setDeleteConfirm(user.id)}
                         className="px-3 py-1 text-xs font-medium rounded-md bg-error/10 text-error hover:bg-error/20 transition-colors"
                       >
-                        Delete
+                        {tc('delete')}
                       </button>
                     )}
                   </div>

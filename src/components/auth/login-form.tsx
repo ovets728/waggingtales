@@ -3,10 +3,13 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 import { createClient } from '@/lib/supabase/client';
 
 export function LoginForm() {
   const router = useRouter();
+  const t = useTranslations('auth');
+  const tc = useTranslations('common');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -32,7 +35,7 @@ export function LoginForm() {
       router.push('/dashboard');
       router.refresh();
     } catch {
-      setError('An unexpected error occurred. Please try again.');
+      setError(t('unexpectedError'));
     } finally {
       setLoading(false);
     }
@@ -48,7 +51,7 @@ export function LoginForm() {
 
       <div>
         <label htmlFor="email" className="block text-sm font-medium text-text-main mb-1">
-          Email
+          {tc('email')}
         </label>
         <input
           id="email"
@@ -57,13 +60,13 @@ export function LoginForm() {
           onChange={(e) => setEmail(e.target.value)}
           required
           className="w-full px-3 py-2 border border-border rounded-md bg-background text-text-main focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-          placeholder="you@example.com"
+          placeholder={t('emailPlaceholder')}
         />
       </div>
 
       <div>
         <label htmlFor="password" className="block text-sm font-medium text-text-main mb-1">
-          Password
+          {tc('password')}
         </label>
         <input
           id="password"
@@ -72,7 +75,7 @@ export function LoginForm() {
           onChange={(e) => setPassword(e.target.value)}
           required
           className="w-full px-3 py-2 border border-border rounded-md bg-background text-text-main focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-          placeholder="Your password"
+          placeholder={t('passwordPlaceholder')}
         />
       </div>
 
@@ -81,13 +84,13 @@ export function LoginForm() {
         disabled={loading}
         className="w-full py-2 px-4 bg-primary text-white rounded-md font-medium hover:bg-primary-hover disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
       >
-        {loading ? 'Signing in...' : 'Sign In'}
+        {loading ? t('signingIn') : t('signIn')}
       </button>
 
       <p className="text-center text-sm text-text-muted">
-        Don&apos;t have an account?{' '}
+        {t('noAccount')}{' '}
         <Link href="/register" className="text-primary hover:underline">
-          Create one
+          {t('createOne')}
         </Link>
       </p>
     </form>

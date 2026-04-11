@@ -1,6 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { createClient } from '@/lib/supabase/client';
 
 interface UserMenuProps {
@@ -9,6 +10,7 @@ interface UserMenuProps {
 
 export function UserMenu({ email }: UserMenuProps) {
   const router = useRouter();
+  const t = useTranslations('common');
 
   async function handleLogout() {
     const supabase = createClient();
@@ -24,7 +26,7 @@ export function UserMenu({ email }: UserMenuProps) {
         onClick={handleLogout}
         className="text-sm px-3 py-1.5 rounded-md border border-border text-text-main hover:bg-background transition-colors"
       >
-        Sign Out
+        {t('logout')}
       </button>
     </div>
   );

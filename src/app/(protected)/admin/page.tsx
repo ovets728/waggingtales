@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { getTranslations } from 'next-intl/server';
 import { createClient } from '@/lib/supabase/server';
 
 export const metadata = {
@@ -21,25 +22,27 @@ async function getStats() {
 
 export default async function AdminPage() {
   const stats = await getStats();
+  const t = await getTranslations('admin');
+  const tc = await getTranslations('common');
 
   const statCards = [
     {
-      label: 'Total Users',
+      label: t('totalUsers'),
       value: stats.totalUsers,
       color: 'text-primary',
     },
     {
-      label: 'Paid Users',
+      label: t('paidUsers'),
       value: stats.paidUsers,
       color: 'text-success',
     },
     {
-      label: 'Free Users',
+      label: t('freeUsers'),
       value: stats.freeUsers,
       color: 'text-warning',
     },
     {
-      label: 'Admin Users',
+      label: t('adminUsers'),
       value: stats.adminUsers,
       color: 'text-primary',
     },
@@ -47,7 +50,7 @@ export default async function AdminPage() {
 
   return (
     <div className="space-y-8">
-      <h1 className="text-2xl font-bold text-text-main">Admin Dashboard</h1>
+      <h1 className="text-2xl font-bold text-text-main">{t('title')}</h1>
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -67,14 +70,14 @@ export default async function AdminPage() {
       {/* Quick Links */}
       <div className="bg-surface border border-border rounded-lg p-6">
         <h2 className="text-lg font-semibold text-text-main mb-4">
-          Quick Links
+          {tc('quickLinks')}
         </h2>
         <div className="flex flex-wrap gap-3">
           <Link
             href="/admin/users"
             className="inline-flex items-center px-4 py-2 bg-primary text-white rounded-lg hover:opacity-90 transition-opacity text-sm font-medium"
           >
-            Manage Users
+            {tc('manageUsers')}
           </Link>
         </div>
       </div>
