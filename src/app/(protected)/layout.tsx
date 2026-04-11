@@ -1,7 +1,5 @@
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
-import { UserMenu } from '@/components/auth/user-menu';
-import { LanguageToggle } from '@/components/language-toggle';
 
 export default async function ProtectedLayout({
   children,
@@ -18,19 +16,10 @@ export default async function ProtectedLayout({
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <header className="border-b border-border bg-surface">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          <span className="text-lg font-semibold text-text-main">WaggingTails</span>
-          <div className="flex items-center gap-3">
-            <LanguageToggle />
-            <UserMenu email={user.email ?? ''} />
-          </div>
-        </div>
-      </header>
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="min-h-[calc(100vh-4rem)] bg-background">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {children}
-      </main>
+      </div>
     </div>
   );
 }
