@@ -3,6 +3,8 @@ import { createClient } from '@/lib/supabase/server';
 import { generateStory } from '@/lib/ai/story-engine';
 import type { StoryInput } from '@/lib/ai/story-engine';
 import { generatePdf } from '@/lib/pdf/generator';
+import { sendEmail } from '@/lib/email/client';
+import { storyReadyEmail } from '@/lib/email/templates';
 
 export const maxDuration = 300; // allow up to 5 minutes for AI generation
 
@@ -59,6 +61,17 @@ export async function POST(request: NextRequest) {
 
     /* ---- Return as base64 JSON ---- */
     const pdfBase64 = pdfBuffer.toString('base64');
+
+    // Fire-and-forget story-ready email
+    if (user.email) {
+      const name = user.user_metadata?.full_name || user.email.split('@')[0];
+      const downloadUrl = `https://waggingtails.com/dashboard`;
+      sendEmail({
+        to: user.email,
+        subject: 'Your Story is Ready! - Waggingtails',
+        html: storyReadyEmail(name, story.title, downloadUrl),
+      }).catch((err) => console.error('Failed to send story-ready email:', err));
+    }
 
     return NextResponse.json({
       title: story.title,

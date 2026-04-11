@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { stripe } from '@/lib/stripe/client';
 import { createClient } from '@supabase/supabase-js';
+import { sendEmail } from '@/lib/email/client';
+import { paymentConfirmationEmail } from '@/lib/email/templates';
 
 // Use service role client for webhook since there's no user session
 function createServiceClient() {
@@ -62,6 +64,17 @@ export async function POST(request: Request) {
           stripe_customer_id: session.customer as string | null,
         })
         .eq('id', userId);
+
+      // Fire-and-forget payment confirmation email
+      const customerEmail = session.customer_details?.email;
+      if (customerEmail) {
+        const name = session.customer_details?.name || customerEmail.split('@')[0];
+        sendEmail({
+          to: customerEmail,
+          subject: 'Payment Confirmed - Waggingtails',
+          html: paymentConfirmationEmail(name),
+        }).catch((err) => console.error('Failed to send payment email:', err));
+      }
     }
   }
 
