@@ -32,7 +32,38 @@ export async function updateSession(request: NextRequest) {
   // IMPORTANT: Do not add logic between createServerClient and
   // supabase.auth.getUser(). A simple mistake could make it very
   // hard to debug issues with users being randomly logged out.
-  await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  const pathname = request.nextUrl.pathname;
+
+  // Protected routes: require authentication
+  const protectedPaths = ['/dashboard', '/wizard', '/admin'];
+  const isProtected = protectedPaths.some(
+    (path) => pathname === path || pathname.startsWith(`${path}/`)
+  );
+
+  if (isProtected && !user) {
+    const url = request.nextUrl.clone();
+    url.pathname = '/login';
+    return NextResponse.redirect(url);
+  }
+
+  // Admin routes: require admin role
+  if (user && (pathname === '/admin' || pathname.startsWith('/admin/'))) {
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', user.id)
+      .single();
+
+    if (!profile || profile.role !== 'admin') {
+      const url = request.nextUrl.clone();
+      url.pathname = '/dashboard';
+      return NextResponse.redirect(url);
+    }
+  }
 
   return supabaseResponse;
 }
