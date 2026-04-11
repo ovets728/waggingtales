@@ -7,6 +7,7 @@ import { StepPet } from './steps/step-pet';
 import { StepHuman } from './steps/step-human';
 import { StepTheme } from './steps/step-theme';
 import { StepReview } from './steps/step-review';
+import { StepGenerate } from './steps/step-generate';
 
 function WizardContent() {
   const t = useTranslations('wizard');
@@ -71,12 +72,7 @@ function WizardContent() {
       case 4:
         return <StepReview />;
       case 5:
-        // Step 5 (generation) placeholder — will be implemented in a future task
-        return (
-          <div className="text-center py-12">
-            <p className="text-lg text-text-main">{t('generating')}</p>
-          </div>
-        );
+        return <StepGenerate />;
       default:
         return null;
     }
