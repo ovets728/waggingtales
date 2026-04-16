@@ -57,13 +57,20 @@ export async function updateSession(request: NextRequest) {
 
   // Admin routes: require admin role
   if (user && (pathname === '/admin' || pathname.startsWith('/admin/'))) {
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('role')
-      .eq('id', user.id)
-      .single();
+    try {
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', user.id)
+        .single();
 
-    if (!profile || profile.role !== 'admin') {
+      if (!profile || profile.role !== 'admin') {
+        const url = request.nextUrl.clone();
+        url.pathname = '/dashboard';
+        return NextResponse.redirect(url);
+      }
+    } catch {
+      // If profile query fails (timeout, network), redirect to dashboard
       const url = request.nextUrl.clone();
       url.pathname = '/dashboard';
       return NextResponse.redirect(url);
